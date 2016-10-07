@@ -1,0 +1,96 @@
+#JSP本质上是一种模板引擎技术，通过模板把JSP页面代码转换成Java源码
+
+#不同的JSP符号：<%! %>, <% %>, <%= %>, <%-- --> <!-- --> <%@page %> <%@taglib %> <%@include %> <c:if test="true"></c:if>
+代表不同的转换规则
+
+#同时支持自定义的转换规则
+
+#具有内置对象，out, request, response, session, application, 是由Container注入的，不需要用new来生成
+
+#get和post的区别：
+get: 明文的方式通过URL提交数据，在URL可以看到，提交数据最多不超过2KB。安全性较低但效率比POST高。
+	适合提交数据量不大，安全性不高的数据。例如：搜索、查询条件等。
+post：将用户提交的信息封装在HTTP报文中。适合提交数据量大，安全性高的用户信息。比如：注册、修改、上传等功能。
+
+#通过超链接传参：<a href="login_success.jsp?username=lisi&password=123">测试URL传参数</a>
+
+#重定向和转发的区别：
+请求重定向：客户端行为，response.sendRedirect(), 本质上等同于两次请求，第一次请求对象不会保存，地址栏的URL地址会改变。
+
+请求装发： 服务器行为，request.getRequestDispatcher().forward(res,resp);是一次请求，转发后，请求对象会保存，地址栏的URL地址不会改变。
+
+实际开发中比较常用的是请求转发，通过不同的Servlet、JSP、Action做不同的处理，完成或返回客户端。
+重定向感觉用的比较少，一般是一些网页资源换了网址，才会把客户端请求重定向转走到另一个网址吧。
+
+第一次请求是客户端发过来的HTTP请求， 课程中的例子就是对http://localohst:8080/context/request.jsp的请求。服务器的Redirect命令会对请求发回响应， 响应头中有重定向的地址，即http://localohst:8080/context/response.jsp.
+客户端浏览器看到响应后，会自动发送一个新的请求到http://localohst:8080/context/response.jsp. 这个请求就是第二个请求，它与第一个请求是没关系的，因此也不会有携带第一个请求的信息。
+
+#Elipse的Tomcat部署目录：
+workspace1\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\work\Catalina\localhost\MyFirstWebProject\org\apache\jsp
+
+#eclipse项目不能发布到tomcat下webapps的是设置路径的问题。
+在Servers下找到Tomcat v7.0 Server at localhost  右键->open   改一下Server Location的路径设置。
+
+#Session表示客户端和服务器的一次会话，Web中的 Session是指用户在浏览网站时，从进入网站到浏览器关闭所经过这段时间。
+
+JSP原理一
+- 当jsp文件第一次被处理时，jsp引擎首先把jsp文件转化成一个java源文件，如果在转化过程中发生错误的话，会立刻中止，同时向服务器端和客户端发送错误信息报告；
+- 如果转化成功了，就会产生一个class类。然后再创建一个 Servlet对象，
+- 首先执行jspInit()方法进行初始化操作，由于整个执行过程jspInit()方法只执行一次，所以可以在这个方法中进行一些必要的操作比如连接数据库，初始化部分参数等等，接着执行_jspService()方法，对客户端的请求进行处理，对每一个请求会创建一个线程，，如果由于某种原因导致jsp网页关闭或者销毁的话会执行jspDestroy()方法。
+
+JSP原理二
+jsp引擎首先把jsp文件转化成一个java源文件的规则：
+
+- JSP声明<%！ %>会被用来生成成员变量，如int i=i+1; String str = "张三"; 
+
+- JSP脚本<% %>会被用来生成JSPService方法里面的方法代码, 包括局部变量声明。
+
+- JSP表达式也会被用来生成"输出到业务“的方法代码，例如out.print(“你好 + str）。
+
+- JSP注释 <% //我是JSP脚本注释 %> 会生成Java注释， 如//我是JSP脚本注释
+
+- HTML注释<!-- 我是HTML注释，在客户端View Source可见 --> , 会生成输出代码out.write("<!-- 我是HTML注释，在客户端View Source可见 -->\r\n");
+
+- JSP注释<%-- 我是JSP注释，在客户端View Source不可见 --%>，不会生成任何内容，在JSP生成代码阶段就抛弃了。
+
+- JSP 指令: page: 生成生成import， response header， 
+
+- JSP taglib： <%@ taglib prefix="s" uri="/struts-tags"%>  <c:if test="true">显示<% out.print(add(4,5)); %> </c:if>
+生成Java代码块
+
+- JSP include： 整块JSP内容插入
+
+#Javabean的设计原则：公有类，私有属性，无参构造器，getter/setter
+
+#JSP动作元素(action elements)： 动作元素为请求处理阶段提供信息。动作元素遵循XML元素的语法，有一个包含元素名的开始
+标签，可以有属性、可选的内容、与开始标签匹配的结束标签。
+
+#JSP动作包含5类：
+- 存取JavaBean：<jsp:useBean>, <jsp:setProperty>, <jsp:getProperty>
+- JSP1.2开始的基本元素：<jsp:include>, <jsp:param>...
+- JSP Document相关： <jsp:root>, <jsp:declararion>,...
+- 生成XML元素标签的值：<jsp:attribute>, <jsp:body>, <jsp:element>
+- TagFile相关：<jsp:invoke>, <jsp:dobody>
+
+#<jsp:useBean>, <jsp:setProperty>, <jsp:getProperty>这些都是jsp用来引入和操作自定义Java entity类的方式
+
+#cookie的值只能是ascii字符，如果是中文，需要将中文转换成ascii字符形式。
+可以使用URLEncoder.encode()方法和URLDecoder.decode()方法来进行这种转换。
+保存到cookie的时候  URLEncoder.encode()  编码,在保存到cookie
+读取出来的时候URLDecoder.decode()  解码
+
+#session和Cookie的比较
+- 都是保存用户信息的机制
+- 都会过期
+- 服务器端 vs. 客户端
+- Object vs. String
+- 会话期间 vs. 长期保存
+- 重要信息 vs. 非重要信息
+
+#include指令和include动作的区别
+- include指令生成一个源文件
+- include动作生成两个源文件，运行时调用
+
+#<jsp:forward page="URL"/>等同于转发指令
+
+
